@@ -64,3 +64,21 @@ sapply(folds,length)
 #Time Slices. 
 
 
+#############################################################
+####################PREPROCESSING############################
+#############################################################
+
+
+hist(training$capitalAve,main="",xlab="ave. capital run length")
+
+mean(training$capitalAve)
+
+sd(training$capitalAve)
+
+#Standardizing
+
+trainCapAve<-training$capitalAve
+trainCapAveS<-(trainCapAve-mean(trainCapAve))/sd(trainCapAve)
+
+sd(trainCapAveS)
+
