@@ -26,3 +26,7 @@ text(modFit$finalModel,use.n=T,all=T,cex=0.5)
 library(rattle)
 library(rpart.plot)
 fancyRpartPlot(modFit$finalModel)
+
+#Predicting new Values
+predict(modFit,newdata=testing)
+
