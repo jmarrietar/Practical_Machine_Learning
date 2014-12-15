@@ -20,11 +20,9 @@ fancyRpartPlot(modFit$finalModel)
 library(pgmm)
 data(olive)
 olive = olive[,-1]
-
 modFit<-train(Area~.,method="rpart",data=olive)
-
-
 newdata = as.data.frame(t(colMeans(olive)))
+
 
 #Question4 FIT A LOGISTIC REGRESSION
 library(ElemStatLearn)
