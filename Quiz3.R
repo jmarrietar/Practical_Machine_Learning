@@ -23,6 +23,7 @@ olive = olive[,-1]
 modFit<-train(Area~.,method="rpart",data=olive)
 newdata = as.data.frame(t(colMeans(olive)))
 
+predict(modFit,newdata[,-1])
 
 #Question4 FIT A LOGISTIC REGRESSION
 library(ElemStatLearn)
