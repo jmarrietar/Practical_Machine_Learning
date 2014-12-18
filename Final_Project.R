@@ -1,7 +1,8 @@
 library(caret)
-setwd("C:/Users/Alfonso/Desktop/JOM/Practical_Machine_Learning")
-training<-read.csv("pml-training.csv",header=T)
-testing<-read.csv("pml-testing.csv",header=T)
+#setwd("C:/Users/Alfonso/Desktop/JOM/Practical_Machine_Learning")
+setwd("C:/Users/JosePortatil/Dropbox/Data Science/Practical_Machine_Learning")
+training<-read.csv("pml-training.csv",header=T,na.strings = "")
+testing<-read.csv("pml-testing.csv",header=T,na.strings = "")
 
 
 #####################################
@@ -21,4 +22,62 @@ testing<-read.csv("pml-testing.csv",header=T)
 #Set ntree parameter when using randomForest(). (ntree around 100 is enough.)
 
 #Get Rid of X as one of the predictors. 
+
+####################################################
+
+colnames(training)
+summary(training)
+
+###################################
+#######  CLEANING PART ############
+###################################
+
+#***** Clean Treaning Data. 
+
+#FIRST PHASE 
+
+#Drop Not relevant Columns. 
+training$X<-NULL
+training$user_name<-NULL 
+training$raw_timestamp_part_1<-NULL
+training$raw_timestamp_part_2<-NULL
+training$cvtd_timestamp<-NULL
+training$new_window<-NULL
+training$num_window<-NULL
+
+#Phase 2 
+#Convert COlumn Variables to Numeric [First convert to Character then to Numeric]
+training[, -c(153)] <- sapply(training[,-c(153)], as.character)
+training[, -c(153)] <- sapply(training[,-c(153)], as.numeric)
+
+#Drop columns with lots of NA values 
+delete_columns<-which(colSums(is.na(training))>19000)
+training<-training[,-c(delete_columns)]
+
+###CLEAN TESTING DATA 
+
+#FIRST PHASE 
+
+#Drop Not relevant Columns. 
+testing$X<-NULL
+testing$user_name<-NULL 
+testing$raw_timestamp_part_1<-NULL
+testing$raw_timestamp_part_2<-NULL
+testing$cvtd_timestamp<-NULL
+testing$new_window<-NULL
+testing$num_window<-NULL
+
+#Drop columns with lots of NA values 
+testing<-testing[,-c(delete_columns)]
+
+###############################################
+############# CREATE A MODEL ##################
+###############################################
+
+
+
+
+###############################################
+############ VALIDATE MODEL ##################
+##############################################
 
