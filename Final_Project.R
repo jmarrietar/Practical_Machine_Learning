@@ -44,6 +44,7 @@ training$raw_timestamp_part_2<-NULL
 training$cvtd_timestamp<-NULL
 training$new_window<-NULL
 training$num_window<-NULL
+training$problem_id<-NULL
 
 #Phase 2 
 #Convert COlumn Variables to Numeric [First convert to Character then to Numeric]
@@ -66,18 +67,39 @@ testing$raw_timestamp_part_2<-NULL
 testing$cvtd_timestamp<-NULL
 testing$new_window<-NULL
 testing$num_window<-NULL
+testing$problem_id<-NULL
+
+#Convert COlumn Variables to Numeric [First convert to Character then to Numeric]
+testing[, -c(153)] <- sapply(testing[,-c(153)], as.character)
+testing[, -c(153)] <- sapply(testing[,-c(153)], as.numeric)
 
 #Drop columns with lots of NA values 
 testing<-testing[,-c(delete_columns)]
 
 ###############################################
-############# CREATE A MODEL ##################
+###### CREATE A MODEL & CROSS VALIDATE ########
 ###############################################
+#SAMPLE DATA SET TO DECREASE TRAINING TIME 
 
+# take a random sample of size 1000 from a dataset mydata 
+# sample without replacement
+training_sample <- training[sample(1:nrow(training), 2000,
+                          replace=FALSE),]
+#A testing set 
+test_sample<- training[sample(1:nrow(training), 2000,
+                                   replace=FALSE),]
 
+# define training control
+train_control <- trainControl(method="cv", number=10)
+# train the model 
+model <- train(classe~., data=training_sample, trControl=train_control, method="rf")
+# make predictions on testing set and make confusion Matrix
+predictions <- predict(model, test_sample[,1:52])
+# summarize results
+confusionMatrix(predictions, test_sample$classe)
 
 
 ###############################################
-############ VALIDATE MODEL ##################
+############ PREDICTION ##################
 ##############################################
 
