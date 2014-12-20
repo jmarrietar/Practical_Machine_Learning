@@ -1,41 +1,32 @@
+---
+title: "ML_Final_Project"
+output: html_document
+---
+Background: 
+
+In this project, the goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.
+
+I will need to build a model, cross validate it and predict 20 different test cases.
+
+Loading data 
+---
+```{r}
 library(caret)
 #setwd("C:/Users/Alfonso/Desktop/JOM/Practical_Machine_Learning")
 setwd("C:/Users/JosePortatil/Dropbox/Data Science/Practical_Machine_Learning")
 training<-read.csv("pml-training.csv",header=T,na.strings = "")
 testing<-read.csv("pml-testing.csv",header=T,na.strings = "")
+```
 
 
-#####################################
-##########      TIPS       ##########
-#####################################
+cleaning data
+---
 
-#I didn't treat this as a time series. 
-#Random Forest gives very accurate result in this case. 
-#You do need to do some initial cleanup and also run the preProcess for rf to run efficiently. 
+Cleaning Trainin data: 
 
-#Try Boosting
+There are several columns that are not important for the analysis and should be dropped. 
 
-
-#(For a tidy data set of this course project, the columns is about 50~60.)
-#Take a smaller size of training set (subset of training data). 
-#(I did the course project with only 1000~2000 records in training set and got approximately 90% precision.)
-#Set ntree parameter when using randomForest(). (ntree around 100 is enough.)
-
-#Get Rid of X as one of the predictors. 
-
-####################################################
-
-colnames(training)
-summary(training)
-
-###################################
-#######  CLEANING PART ############
-###################################
-
-#***** Clean Treaning Data. 
-
-#FIRST PHASE 
-
+```{r}
 #Drop Not relevant Columns. 
 training$X<-NULL
 training$user_name<-NULL 
@@ -45,20 +36,29 @@ training$cvtd_timestamp<-NULL
 training$new_window<-NULL
 training$num_window<-NULL
 training$problem_id<-NULL
+```
 
-#Phase 2 
+Almost all columns represents numeric values but they are in factor type. 
+We must convert them to numeric values. 
+```{r,warning=FALSE}
 #Convert COlumn Variables to Numeric [First convert to Character then to Numeric]
 training[, -c(153)] <- sapply(training[,-c(153)], as.character)
 training[, -c(153)] <- sapply(training[,-c(153)], as.numeric)
+```
 
+Looking a summary of the data it can be seen a lot of NA values in columns.These columns can be dropped because they do not bring value to the model. 
+
+```{r}
 #Drop columns with lots of NA values 
 delete_columns<-which(colSums(is.na(training))>19000)
 training<-training[,-c(delete_columns)]
+```
 
-###CLEAN TESTING DATA 
+Cleaning Testing Data: 
 
-#FIRST PHASE 
+The same process is done in the Tetsing Data. 
 
+```{r,warning=FALSE}
 #Drop Not relevant Columns. 
 testing$X<-NULL
 testing$user_name<-NULL 
@@ -75,12 +75,14 @@ testing[, -c(153)] <- sapply(testing[,-c(153)], as.numeric)
 
 #Drop columns with lots of NA values 
 testing<-testing[,-c(delete_columns)]
+```
 
-###############################################
-###### CREATE A MODEL & CROSS VALIDATE ########
-###############################################
-#SAMPLE DATA SET TO DECREASE TRAINING TIME 
+create a model and cross validate
+---
 
+The training set is a little big for my computer and the random forest model training would take too much time. To tackle this i will take a sample of 2000 observation from my training data  and another 2000 observation sample to validate model. 
+
+```{r}
 # take a random sample of size 2000 from a dataset mydata 
 # sample without replacement
 training_sample <- training[sample(1:nrow(training), 2000,
@@ -88,7 +90,12 @@ training_sample <- training[sample(1:nrow(training), 2000,
 #A testing set 
 test_sample<- training[sample(1:nrow(training), 2000,
                                    replace=FALSE),]
+```
 
+
+Now a random forest with cross validation will be  trained and tested in another data set. A confusion Matrix will be displayed.
+
+```{r}
 # define training control
 train_control <- trainControl(method="cv", number=10)
 # train the model 
@@ -97,21 +104,17 @@ model <- train(classe~., data=training_sample, trControl=train_control, method="
 predictions <- predict(model, test_sample[,1:52])
 # summarize results
 confusionMatrix(predictions, test_sample$classe)
+```
 
+The results performed and accuracy is very high so we proceed to predict values on the test set provided. 
 
-###############################################
-############ PREDICTION ##################
-##############################################
+Predict 
+---
 
+```{r}
 Final_predictions <- predict(model, testing)
-
-pml_write_files = function(x){
-  n = length(x)
-  for(i in 1:n){
-    filename = paste0("problem_id_",i,".txt")
-    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
-  }
-}
+Final_predictions
+```
 
 
-pml_write_files(Final_predictions)
+
